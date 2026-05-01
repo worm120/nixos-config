@@ -1,0 +1,59 @@
+{ config, pkgs, ... }:
+
+{
+  imports = [
+    ./hardware-configuration.nix
+  ];
+
+  boot.loader.systemd-boot.enable = true;
+  boot.loader.efi.canTouchEfiVariables = true;
+
+  networking.hostName = "nixos_nuc";
+  networking.networkmanager.enable = true;
+
+  time.timeZone = "Asia/Shanghai";
+  i18n.defaultLocale = "zh_CN.UTF-8";
+
+  services.xserver.enable = true;
+  services.displayManager.sddm.enable = true;
+  services.desktopManager.plasma6.enable = true;
+
+  security.rtkit.enable = true;
+  services.pipewire = {
+    enable = true;
+    alsa.enable = true;
+    alsa.support32Bit = true;
+    pulse.enable = true;
+  };
+
+  i18n.inputMethod = {
+    enable = true;
+    type = "fcitx5";
+    fcitx5.addons = with pkgs.qt6Packages; [
+      fcitx5-configtool
+      fcitx5-chinese-addons
+    ];
+  };
+
+  fonts.packages = with pkgs; [
+    noto-fonts
+    noto-fonts-cjk-sans
+  ];
+
+  users.users.zn = {
+    isNormalUser = true;
+    description = "zn";
+    extraGroups = [ "wheel" "networkmanager" ];
+    initialPassword = "zning";
+  };
+
+  users.users.root.initialPassword = "zning";
+
+  environment.systemPackages = with pkgs; [
+    git
+    vim
+    wget
+  ];
+
+  system.stateVersion = "25.11";
+}
