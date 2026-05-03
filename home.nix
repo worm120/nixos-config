@@ -52,15 +52,16 @@ in
     autosuggestion.enable = true;
     syntaxHighlighting.enable = true;
     oh-my-zsh.enable = true;
-    initExtra = ''
+    initContent = ''
       source ${pkgs.zsh-powerlevel10k}/share/zsh/themes/powerlevel10k/powerlevel10k.zsh-theme
-    pkgs.rustup
       [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+      [[ -f ~/config/zsh/local.zsh ]] && source ~/config/zsh/local.zsh
     '';
   };
 
   home.packages = [
     pkgs.wechat
+    pkgs.wezterm
     pkgs.home-manager
     pkgs.zsh-powerlevel10k
     pkgs.rustup
@@ -73,6 +74,7 @@ in
   home.sessionPath = [
     "${npmPrefix}/bin"
     "${config.home.homeDirectory}/.cargo/bin"
+    "${config.home.homeDirectory}/LLVM-22.1.0-Linux-X64/bin"
   ];
 
   home.file.".npmrc".text = ''

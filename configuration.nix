@@ -81,6 +81,8 @@
     bluez-tools
     bubblewrap
     curl
+    gcc
+    gnumake
     inetutils
     net-tools
     firefox
