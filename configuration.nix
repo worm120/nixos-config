@@ -50,12 +50,18 @@
   i18n.inputMethod = {
     enable = true;
     type = "fcitx5";
-    fcitx5.addons = with pkgs.qt6Packages; [
-      fcitx5-configtool
-    ] ++ [
-      pkgs.fcitx5-rime
-      pkgs.fcitx5-material-color
-    ];
+    fcitx5 = {
+      addons = with pkgs.qt6Packages; [
+        fcitx5-configtool
+      ] ++ [
+        pkgs.fcitx5-rime
+        pkgs.fcitx5-material-color
+      ];
+      # KDE Plasma 6 Wayland: 让 KWin 管理 fcitx5 输入法
+      # 此时 GTK_IM_MODULE/QT_IM_MODULE 不由 NixOS 全局设置（由 KWin 通过 text-input 协议转发）
+      # WezTerm 使用 zwp_text_input_v3 协议，需要 KWin 暴露 input_method 协议
+      waylandFrontend = true;
+    };
   };
 
   fonts.packages = with pkgs; [

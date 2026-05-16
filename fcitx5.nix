@@ -39,16 +39,6 @@
     EnableFractionalScale=True
   '';
 
-  # KDE 面板输入法图标（禁用，由 Classic UI 接管候选框）
-  xdg.configFile."fcitx5/conf/kimpanel.conf".text = ''
-    Enabled=False
-  '';
-
-  # 禁用 Wayland 输入法前端，让 Classic UI 渲染候选框
-  xdg.configFile."fcitx5/conf/waylandim.conf".text = ''
-    Enabled=False
-  '';
-
   # RIME 输入法方案配置
   home.file.".local/share/fcitx5/rime/default.custom.yaml".text = ''
     patch:
@@ -77,5 +67,25 @@
       ln -sfn ${pkgs.fcitx5-material-color}/share/fcitx5/themes/"$theme" \
         "$HOME/.local/share/fcitx5/themes/$theme"
     done
+  '';
+
+  # 禁用 fcitx5 的 KDE 自动启动，改为由 KWin 通过虚拟键盘 / InputMethod 机制管理。
+  # KWin 读取 kwinrc 中的 InputMethod[$e]，启动 fcitx5 并暴露 zwp_input_method_manager_v1 协议。
+  # 这样 WezTerm 的 zwp_text_input_v3 才能经由 KWin 转发到 fcitx5。
+  home.activation.disableFcitx5Autostart = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
+    AUTOSTART_DIR="$HOME/.config/autostart"
+    mkdir -p "$AUTOSTART_DIR"
+    if [ -f "$AUTOSTART_DIR/org.fcitx.Fcitx5.desktop" ]; then
+      if ! grep -Fq 'Hidden=true' "$AUTOSTART_DIR/org.fcitx.Fcitx5.desktop"; then
+        echo -e '[Desktop Entry]\nHidden=true' > "$AUTOSTART_DIR/org.fcitx.Fcitx5.desktop"
+      fi
+    else
+      echo -e '[Desktop Entry]\nHidden=true' > "$AUTOSTART_DIR/org.fcitx.Fcitx5.desktop"
+    fi
+  '';
+
+  # 清理旧的 kwriteconfig6 错误写入使 kwinrc 的激活脚本（已废弃）
+  home.activation.cleanupOldKwinrcFix = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
+    sed -i '/^InputMethod\\/d' "$HOME/.config/kwinrc" 2>/dev/null || true
   '';
 }
