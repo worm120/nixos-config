@@ -1,8 +1,9 @@
 {
-  description = "NixOS configuration for nixos_nuc";
+  description = "NixOS configuration for nixos_zn";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/4e92bbcdb030f3b4782be4751dc08e6b6cb6ccf2";
+    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     home-manager = {
       url = "github:nix-community/home-manager/release-25.11";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -16,12 +17,16 @@
 
   outputs = {
     nixpkgs,
+    nixpkgs-unstable,
     home-manager,
     plasma-manager,
     ...
   }: {
-    nixosConfigurations.nixos_nuc = nixpkgs.lib.nixosSystem {
+    nixosConfigurations.nixos_zn = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
+      specialArgs = {
+        pkgs-unstable = nixpkgs-unstable.legacyPackages.x86_64-linux;
+      };
       modules = [
         ./configuration.nix
         home-manager.nixosModules.home-manager

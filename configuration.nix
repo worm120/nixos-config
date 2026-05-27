@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, pkgs-unstable, ... }:
 
 {
   imports = [
@@ -11,20 +11,35 @@
   ];
 
   nixpkgs.config.allowUnfree = true;
+  hardware.graphics.enable = true;
+  hardware.graphics.enable32Bit = true;
 
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
+  boot.loader.timeout = 10;
+  boot.kernelPackages = pkgs.linuxPackages_6_12;
 
   hardware.bluetooth = {
     enable = true;
     powerOnBoot = true;
   };
 
-  networking.hostName = "nixos_nuc";
+  networking.hostName = "nixos_zn";
   networking.networkmanager.enable = true;
 
   time.timeZone = "Asia/Shanghai";
   i18n.defaultLocale = "zh_CN.UTF-8";
+  i18n.supportedLocales = [
+    "en_US.UTF-8/UTF-8"
+    "zh_CN.UTF-8/UTF-8"
+  ];
+  i18n.extraLocaleSettings = {
+    LC_CTYPE = "zh_CN.UTF-8";
+    LC_MESSAGES = "zh_CN.UTF-8";
+  };
+  environment.sessionVariables = {
+    LANG = "zh_CN.UTF-8";
+  };
 
   services.xserver.enable = true;
   services.displayManager.sddm.enable = true;
@@ -57,10 +72,8 @@
         pkgs.fcitx5-rime
         pkgs.fcitx5-material-color
       ];
-      # KDE Plasma 6 Wayland: 让 KWin 管理 fcitx5 输入法
-      # 此时 GTK_IM_MODULE/QT_IM_MODULE 不由 NixOS 全局设置（由 KWin 通过 text-input 协议转发）
-      # WezTerm 使用 zwp_text_input_v3 协议，需要 KWin 暴露 input_method 协议
-      waylandFrontend = true;
+      # KDE Plasma 6 Wayland: 传统 im-module 方式（不走 KWin InputMethod 机制，更可靠）
+      waylandFrontend = false;
     };
   };
 
@@ -82,18 +95,30 @@
   programs.zsh.enable = true;
   programs.nix-ld.enable = true;
 
+  programs.steam = {
+    enable = true;
+    package = pkgs-unstable.steam;
+  };
+
   environment.systemPackages = with pkgs; [
     bluez
     bluez-tools
+    vscode
+    llvm
+    clang
+    clang-tools
+    lld
+    lldb
     bubblewrap
     curl
+    fastfetch
+    firefox
     gcc
+    git
     gnumake
+    google-chrome
     inetutils
     net-tools
-    firefox
-    git
-    google-chrome
     nodejs
     unzip
     vim

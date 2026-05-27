@@ -69,23 +69,39 @@
     done
   '';
 
-  # 禁用 fcitx5 的 KDE 自动启动，改为由 KWin 通过虚拟键盘 / InputMethod 机制管理。
-  # KWin 读取 kwinrc 中的 InputMethod[$e]，启动 fcitx5 并暴露 zwp_input_method_manager_v1 协议。
-  # 这样 WezTerm 的 zwp_text_input_v3 才能经由 KWin 转发到 fcitx5。
-  home.activation.disableFcitx5Autostart = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
-    AUTOSTART_DIR="$HOME/.config/autostart"
-    mkdir -p "$AUTOSTART_DIR"
-    if [ -f "$AUTOSTART_DIR/org.fcitx.Fcitx5.desktop" ]; then
-      if ! grep -Fq 'Hidden=true' "$AUTOSTART_DIR/org.fcitx.Fcitx5.desktop"; then
-        echo -e '[Desktop Entry]\nHidden=true' > "$AUTOSTART_DIR/org.fcitx.Fcitx5.desktop"
-      fi
-    else
-      echo -e '[Desktop Entry]\nHidden=true' > "$AUTOSTART_DIR/org.fcitx.Fcitx5.desktop"
+  # 预配置 fcitx5 profile，添加 RIME 作为默认中文输入法
+  home.file.".config/fcitx5/profile".text = ''
+    [Groups/0]
+    Name=Default
+    Default Layout=us
+    DefaultIM=keyboard-us
+
+    [Groups/0/Items/0]
+    Name=keyboard-us
+    Layout=
+
+    [Groups/0/Items/1]
+    Name=rime
+    Layout=
+
+    [GroupOrder]
+    0=Default
+  '';
+
+  # 让 NixOS 的 fcitx5 systemd user service 自动启动（不依赖 KWin InputMethod）
+  home.activation.ensureFcitx5Autostart = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
+    if [ -f "$HOME/.config/autostart/org.fcitx.Fcitx5.desktop" ]; then
+      rm -f "$HOME/.config/autostart/org.fcitx.Fcitx5.desktop"
     fi
   '';
 
-  # 清理旧的 kwriteconfig6 错误写入使 kwinrc 的激活脚本（已废弃）
-  home.activation.cleanupOldKwinrcFix = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
-    sed -i '/^InputMethod\\/d' "$HOME/.config/kwinrc" 2>/dev/null || true
+  # 清理之前残留的 kwinrc 错误配置
+  home.activation.cleanupKwinrcInputMethod = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
+    sed -i '/^\[InputMethod\]/,/^\[/ {
+      /^\[InputMethod\]/d
+      /^\[/!d
+    }' "$HOME/.config/kwinrc" 2>/dev/null || true
+    sed -i '/^\[$e\]=/d' "$HOME/.config/kwinrc" 2>/dev/null || true
+    sed -i '/^\\x5b$e\\x5d=/d' "$HOME/.config/kwinrc" 2>/dev/null || true
   '';
 }

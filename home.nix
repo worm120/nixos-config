@@ -3,6 +3,8 @@
 let
   npmPrefix = "${config.home.homeDirectory}/.npm-global";
   codexVersion = "0.120.0";
+  claudeCodeVersion = "latest";
+  openCodeVersion = "latest";
   codexPackageJson = "${npmPrefix}/lib/node_modules/@openai/codex/package.json";
 in
 {
@@ -19,6 +21,19 @@ in
   programs.home-manager.enable = true;
   programs.plasma = {
     enable = true;
+    krunner = {
+      position = "top";
+      historyBehavior = "enableSuggestions";
+    };
+    configFile."kdeglobals"."Translations" = {
+      Language = "zh_CN";
+    };
+    configFile."plasma-localerc"."Formats" = {
+      LANG = "zh_CN.UTF-8";
+    };
+    configFile."plasma-localerc"."Translations" = {
+      LANGUAGE = "zh_CN";
+    };
     fonts = {
       general = {
         family = "0xProto Nerd Font";
@@ -60,6 +75,8 @@ in
   };
 
   home.packages = [
+    pkgs.blender
+    pkgs.godot
     pkgs.wechat
     pkgs.wezterm
     pkgs.home-manager
@@ -69,10 +86,17 @@ in
 
   home.sessionVariables = {
     NPM_CONFIG_PREFIX = npmPrefix;
+    GTK_IM_MODULE = "fcitx";
+    QT_IM_MODULE = "fcitx";
+    QT_WAYLAND_IM_MODULE = "fcitx";
+    SDL_IM_MODULE = "fcitx";
+    https_proxy = "http://127.0.0.1:7890";
+    http_proxy = "http://127.0.0.1:7890";
   };
 
   home.sessionPath = [
     "${npmPrefix}/bin"
+    "${config.home.homeDirectory}/.local/bin"
     "${config.home.homeDirectory}/.cargo/bin"
     "${config.home.homeDirectory}/LLVM-22.1.0-Linux-X64/bin"
   ];
@@ -94,6 +118,8 @@ in
 
     if [ ! -f "${codexPackageJson}" ] || ! grep -Fq '"version": "${codexVersion}"' "${codexPackageJson}"; then
       ${pkgs.nodejs}/bin/npm install -g --no-fund --no-update-notifier "@openai/codex@${codexVersion}"
+    ${pkgs.nodejs}/bin/npm install -g --no-fund --no-update-notifier "@anthropic-ai/claude-code@${claudeCodeVersion}"
+    ${pkgs.nodejs}/bin/npm install -g --no-fund --no-update-notifier "opencode-ai@${openCodeVersion}"
     fi
   '';
 
