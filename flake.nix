@@ -2,7 +2,7 @@
   description = "NixOS configuration for nixos_zn";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/4e92bbcdb030f3b4782be4751dc08e6b6cb6ccf2";
+    nixpkgs.url = "github:NixOS/nixpkgs/e60871b207281391f06d04586686688e630d4576";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     home-manager = {
       url = "github:nix-community/home-manager/release-25.11";
@@ -25,7 +25,7 @@
     nixosConfigurations.nixos_zn = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       specialArgs = {
-        pkgs-unstable = nixpkgs-unstable.legacyPackages.x86_64-linux;
+        pkgs-unstable = import nixpkgs-unstable { system = "x86_64-linux"; config.allowUnfree = true; };
       };
       modules = [
         ./configuration.nix

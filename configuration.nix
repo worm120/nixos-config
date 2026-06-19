@@ -17,7 +17,7 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.loader.timeout = 10;
-  boot.kernelPackages = pkgs.linuxPackages_6_12;
+  boot.kernelPackages = pkgs.linuxPackages_latest;
 
   hardware.bluetooth = {
     enable = true;
@@ -100,6 +100,13 @@
     package = pkgs-unstable.steam;
   };
 
+  programs.firefox = {
+    enable = true;
+    preferences = {
+      "browser.startup.page" = 3;
+    };
+  };
+
   environment.systemPackages = with pkgs; [
     bluez
     bluez-tools
@@ -112,7 +119,7 @@
     bubblewrap
     curl
     fastfetch
-    firefox
+    flameshot
     gcc
     git
     gnumake
@@ -121,6 +128,7 @@
     net-tools
     nodejs
     unzip
+    typst
     vim
     wget
     zsh
