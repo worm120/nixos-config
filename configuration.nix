@@ -1,4 +1,4 @@
-{ pkgs, pkgs-unstable, ... }:
+{ lib, pkgs, pkgs-unstable, ... }:
 
 {
   imports = [
@@ -40,6 +40,13 @@
   environment.sessionVariables = {
     LANG = "zh_CN.UTF-8";
   };
+  # fcitx5 on Wayland: don't set GTK/QT im-module globally, avoid fcitx5 warning
+  # XWayland apps can set them individually (see https://fcitx-im.org/wiki/Using_Fcitx_5_on_Wayland)
+  environment.variables = {
+    GTK_IM_MODULE = lib.mkForce "";
+    QT_IM_MODULE = lib.mkForce "";
+    SDL_IM_MODULE = lib.mkForce "";
+  };
 
   services.xserver.enable = true;
   services.displayManager.sddm.enable = true;
@@ -73,7 +80,7 @@
         pkgs.fcitx5-material-color
       ];
       # KDE Plasma 6 Wayland: 传统 im-module 方式（不走 KWin InputMethod 机制，更可靠）
-      waylandFrontend = false;
+      waylandFrontend = true;
     };
   };
 
@@ -127,6 +134,8 @@
     inetutils
     net-tools
     nodejs
+    python3
+    python3Packages.pip
     unzip
     typst
     vim

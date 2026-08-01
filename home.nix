@@ -90,6 +90,7 @@ in
     QT_IM_MODULE = "fcitx";
     QT_WAYLAND_IM_MODULE = "fcitx";
     SDL_IM_MODULE = "fcitx";
+    XMODIFIERS = "@im=fcitx";
     https_proxy = "http://127.0.0.1:7890";
     http_proxy = "http://127.0.0.1:7890";
   };
