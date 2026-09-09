@@ -74,6 +74,24 @@ in
     '';
   };
 
+
+  systemd.user.services.mihomo = {
+    Unit = {
+      Description = "Mihomo proxy (Clash Meta)";
+      After = [ "network-online.target" ];
+      Wants = [ "network-online.target" ];
+    };
+    Service = {
+      Type = "simple";
+      ExecStart = "${pkgs.mihomo}/bin/mihomo -d /home/zn/.config/clash";
+      Restart = "on-failure";
+      RestartSec = 3;
+    };
+    Install = {
+      WantedBy = [ "default.target" ];
+    };
+  };
+
   home.packages = [
     pkgs.blender
     pkgs.godot

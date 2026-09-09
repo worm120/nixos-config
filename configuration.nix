@@ -119,6 +119,9 @@
     bluez-tools
     vscode
     llvm
+    xmake
+    mpv
+    mihomo
     clang
     clang-tools
     lld
