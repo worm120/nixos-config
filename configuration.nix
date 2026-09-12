@@ -27,6 +27,11 @@
   networking.hostName = "nixos_zn";
   networking.networkmanager.enable = true;
 
+  # mihomo (Clash Meta) 监听 7890(mixed) / 7891(socks)；
+  # allow-lan 打开后需要放行这两个端口，局域网其他设备才能使用代理
+  networking.firewall.allowedTCPPorts = [ 7890 7891 ];
+  networking.firewall.allowedUDPPorts = [ 7890 7891 ];
+
   time.timeZone = "Asia/Shanghai";
   i18n.defaultLocale = "zh_CN.UTF-8";
   i18n.supportedLocales = [
@@ -136,7 +141,7 @@
     google-chrome
     inetutils
     net-tools
-    nodejs
+    nodejs_24
     python3
     python3Packages.pip
     unzip

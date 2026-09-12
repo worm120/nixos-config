@@ -131,14 +131,14 @@ in
   home.activation.installNodeGlobals = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     export HOME="${config.home.homeDirectory}"
     export NPM_CONFIG_PREFIX="${npmPrefix}"
-    export PATH="${lib.makeBinPath [ pkgs.nodejs pkgs.git ]}:$NPM_CONFIG_PREFIX/bin:$PATH"
+    export PATH="${lib.makeBinPath [ pkgs.nodejs_24 pkgs.git ]}:$NPM_CONFIG_PREFIX/bin:$PATH"
 
     mkdir -p "$NPM_CONFIG_PREFIX"
 
     if [ ! -f "${codexPackageJson}" ] || ! grep -Fq '"version": "${codexVersion}"' "${codexPackageJson}"; then
-      ${pkgs.nodejs}/bin/npm install -g --no-fund --no-update-notifier "@openai/codex@${codexVersion}"
-    ${pkgs.nodejs}/bin/npm install -g --no-fund --no-update-notifier "@anthropic-ai/claude-code@${claudeCodeVersion}"
-    ${pkgs.nodejs}/bin/npm install -g --no-fund --no-update-notifier "opencode-ai@${openCodeVersion}"
+      ${pkgs.nodejs_24}/bin/npm install -g --no-fund --no-update-notifier "@openai/codex@${codexVersion}"
+    ${pkgs.nodejs_24}/bin/npm install -g --no-fund --no-update-notifier "@anthropic-ai/claude-code@${claudeCodeVersion}"
+    ${pkgs.nodejs_24}/bin/npm install -g --no-fund --no-update-notifier "opencode-ai@${openCodeVersion}"
     fi
   '';
 
