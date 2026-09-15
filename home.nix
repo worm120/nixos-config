@@ -75,6 +75,17 @@ in
   };
 
 
+  programs.ssh = {
+    enable = true;
+    enableDefaultConfig = false;
+    matchBlocks."github.com" = {
+      hostname = "github.com";
+      user = "git";
+      proxyCommand = "${pkgs.netcat}/bin/nc -X connect -x 127.0.0.1:7890 %h %p";
+      serverAliveInterval = 30;
+    };
+  };
+
   systemd.user.services.mihomo = {
     Unit = {
       Description = "Mihomo proxy (Clash Meta)";
