@@ -147,6 +147,7 @@ in
     pkgs.home-manager
     pkgs.zsh-powerlevel10k
     pkgs.rustup
+    pkgs.tree-sitter  # nvim-treesitter 编译/安装 parser 需要（:TSInstall 依赖它）
   ];
 
   home.sessionVariables = {
