@@ -141,7 +141,7 @@
     google-chrome
     inetutils
     net-tools
-    neovim
+    pkgs-unstable.neovim
     nodejs_24
     python3
     python3Packages.pip
