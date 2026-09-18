@@ -153,6 +153,36 @@ in
     fi
   '';
 
+  # Neovim 配置（LazyVim）：nix 管理"来源 + 首次落地"，首次 clone 到 ~/.config/nvim 后
+  # 保持为本地可写 git 仓库。更新配置：git -C ~/.config/nvim pull（或直接改文件后 commit）。
+  # 目录已存在且 origin 就是该仓库时不做任何事；origin 不是它（例如上游 LazyVim/starter 副本）
+  # 则先备份为 nvim.bak-<时间戳> 再 clone。
+  home.activation.cloneNvimConfig = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
+    export HOME="${config.home.homeDirectory}"
+    nvimConfigDir="$HOME/.config/nvim"
+    nvimConfigSsh="git@github.com:worm120/nvimConfig.git"
+    nvimConfigHttps="https://github.com/worm120/nvimConfig.git"
+
+    if [ -d "$nvimConfigDir/.git" ] \
+      && ${pkgs.git}/bin/git -C "$nvimConfigDir" remote get-url origin 2>/dev/null | grep -qF "worm120/nvimConfig"; then
+      : # 已是你的仓库，保持现状
+    else
+      if [ -e "$nvimConfigDir" ]; then
+        mv "$nvimConfigDir" "$nvimConfigDir.bak-$(date +%Y%m%d%H%M%S)"
+      fi
+      mkdir -p "$HOME/.config"
+      # SSH 走 ~/.ssh/config 里声明的 mihomo ProxyCommand（programs.ssh，见本文件上方）；
+      # 无可用 SSH key 时退回 https（仓库公开）克隆，再把 origin 改回 SSH 以便 push。
+      if ${pkgs.git}/bin/git clone --branch main "$nvimConfigSsh" "$nvimConfigDir"; then
+        :
+      elif ${pkgs.git}/bin/git -c http.proxy=http://127.0.0.1:7890 clone --branch main "$nvimConfigHttps" "$nvimConfigDir"; then
+        ${pkgs.git}/bin/git -C "$nvimConfigDir" remote set-url origin "$nvimConfigSsh"
+      else
+        echo "[cloneNvimConfig] 警告: nvim 配置 clone 失败，下次 nixos-rebuild switch 会重试" >&2
+      fi
+    fi
+  '';
+
   home.activation.refreshUserFontCache = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
     ${pkgs.fontconfig}/bin/fc-cache -f "$HOME/.local/share/fonts/0xProto"
   '';
