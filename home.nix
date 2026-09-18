@@ -151,6 +151,8 @@ in
     pkgs.nixd              # Nix LSP（nixd 2.7.0）
     pkgs.nixfmt-rfc-style  # nix 格式化（LazyVim nix extra -> conform.nvim）
     pkgs.statix            # nix lint（LazyVim nix extra -> nvim-lint）
+    pkgs.pyright           # Python LSP（pyright-langserver，自带 node）
+    pkgs.lua-language-server  # Lua LSP（lua_ls，含 xmake.lua 用的自定义配置）
   ];
 
   home.sessionVariables = {
