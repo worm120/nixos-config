@@ -148,6 +148,9 @@ in
     pkgs.zsh-powerlevel10k
     pkgs.rustup
     pkgs.tree-sitter  # nvim-treesitter 编译/安装 parser 需要（:TSInstall 依赖它）
+    pkgs.nixd              # Nix LSP（nixd 2.7.0）
+    pkgs.nixfmt-rfc-style  # nix 格式化（LazyVim nix extra -> conform.nvim）
+    pkgs.statix            # nix lint（LazyVim nix extra -> nvim-lint）
   ];
 
   home.sessionVariables = {
