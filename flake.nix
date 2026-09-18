@@ -2,10 +2,10 @@
   description = "NixOS configuration for nixos_zn";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/e60871b207281391f06d04586686688e630d4576";
+    nixpkgs.url = "github:NixOS/nixpkgs/ecaf8a83c40db63582da00410062a799b8c2b308";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     home-manager = {
-      url = "github:nix-community/home-manager/release-25.11";
+      url = "github:nix-community/home-manager/release-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     plasma-manager = {

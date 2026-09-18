@@ -9,6 +9,12 @@
     "nix-command"
     "flakes"
   ];
+  # 国内镜像加速：USTC 主镜像 → TUNA 备用 → 官方兜底（narinfo 签名仍是 cache.nixos.org-1）
+  nix.settings.substituters = [
+    "https://mirrors.ustc.edu.cn/nix-channels/store"
+    "https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store"
+    "https://cache.nixos.org/"
+  ];
 
   nixpkgs.config.allowUnfree = true;
   hardware.graphics.enable = true;

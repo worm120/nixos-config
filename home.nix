@@ -78,11 +78,12 @@ in
   programs.ssh = {
     enable = true;
     enableDefaultConfig = false;
-    matchBlocks."github.com" = {
-      hostname = "github.com";
-      user = "git";
-      proxyCommand = "${pkgs.netcat}/bin/nc -X connect -x 127.0.0.1:7890 %h %p";
-      serverAliveInterval = 30;
+    # 26.05 起用 settings（matchBlocks/extraOptions 已弃用）；键名是 OpenSSH 原生指令名
+    settings."github.com" = {
+      HostName = "github.com";
+      User = "git";
+      ProxyCommand = "${pkgs.netcat}/bin/nc -X connect -x 127.0.0.1:7890 %h %p";
+      ServerAliveInterval = 30;
     };
   };
 
