@@ -141,6 +141,7 @@
     google-chrome
     inetutils
     net-tools
+    neovim
     nodejs_24
     python3
     python3Packages.pip
