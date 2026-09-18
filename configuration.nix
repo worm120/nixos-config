@@ -146,6 +146,7 @@
     python3
     python3Packages.pip
     unzip
+    tmux
     typst
     vim
     wget

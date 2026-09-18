@@ -86,6 +86,42 @@ in
     };
   };
 
+  # tmux：包在 configuration.nix 的 systemPackages，配置在这里声明式管理
+  # （生成 ~/.config/tmux/tmux.conf；剪贴板走 set-clipboard + wezterm OSC52，无需 xclip）
+  programs.tmux = {
+    enable = true;
+    terminal = "tmux-256color";
+    keyMode = "vi";
+    mouse = true;
+    historyLimit = 50000;
+    baseIndex = 1;
+    clock24 = true;
+    escapeTime = 10;
+    aggressiveResize = true;
+    sensibleOnTop = true;
+    extraConfig = ''
+      # 真彩色：wezterm 支持 RGB，直接透传
+      set -as terminal-features ",*:RGB"
+      set -g set-clipboard on
+      set -g focus-events on
+      setw -g mode-keys vi
+
+      # 状态栏：底部、左对齐、暗色（贴近 LazyVim 的配色）
+      set -g status-position bottom
+      set -g status-justify left
+      set -g status-style "bg=default,fg=#abb2bf"
+      set -g status-left-length 30
+      set -g status-left " #[bold]#S "
+      set -g status-right "#[fg=#98c379]#{?client_prefix,PREFIX ,}#[fg=#abb2bf]%m-%d %H:%M "
+      set -g window-status-current-style "fg=#98c379,bold"
+      set -g pane-border-style "fg=#3e4451"
+      set -g pane-active-border-style "fg=#98c379"
+      set -g message-style "bg=#3e4451,fg=#abb2bf"
+
+      # nvim 里 C-h/j/k/l 留给编辑器本身，不映射成 tmux 窗格跳转
+    '';
+  };
+
   systemd.user.services.mihomo = {
     Unit = {
       Description = "Mihomo proxy (Clash Meta)";
