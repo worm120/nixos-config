@@ -150,7 +150,7 @@ in
     pkgs.rustup
     pkgs.tree-sitter  # nvim-treesitter 编译/安装 parser 需要（:TSInstall 依赖它）
     pkgs.nixd              # Nix LSP（nixd 2.7.0）
-    pkgs.nixfmt-rfc-style  # nix 格式化（LazyVim nix extra -> conform.nvim）
+    pkgs.nixfmt  # nix 格式化（LazyVim nix extra -> conform.nvim；26.05 起 nixfmt-rfc-style 已合并入 nixfmt）
     pkgs.statix            # nix lint（LazyVim nix extra -> nvim-lint）
   ];
 
