@@ -1,163 +1,207 @@
-{ lib, pkgs, pkgs-unstable, ... }:
+{
+  lib,
+  pkgs,
+  pkgs-unstable,
+  ...
+}:
 
 {
   imports = [
     ./hardware-configuration.nix
   ];
 
-  nix.settings.experimental-features = [
-    "nix-command"
-    "flakes"
-  ];
-  # 国内镜像加速：USTC 主镜像 → TUNA 备用 → 官方兜底（narinfo 签名仍是 cache.nixos.org-1）
-  nix.settings.substituters = [
-    "https://mirrors.ustc.edu.cn/nix-channels/store"
-    "https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store"
-    "https://cache.nixos.org/"
-  ];
+  nix.settings = {
+    experimental-features = [
+      "nix-command"
+      "flakes"
+    ];
+    # 国内镜像加速：USTC 主镜像 → TUNA 备用 → 官方兜底（narinfo 签名仍是 cache.nixos.org-1）
+    substituters = [
+      "https://mirrors.ustc.edu.cn/nix-channels/store"
+      "https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store"
+      "https://cache.nixos.org/"
+    ];
+  };
 
   nixpkgs.config.allowUnfree = true;
-  hardware.graphics.enable = true;
-  hardware.graphics.enable32Bit = true;
 
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
-  boot.loader.timeout = 10;
-  boot.kernelPackages = pkgs.linuxPackages_latest;
-
-  hardware.bluetooth = {
-    enable = true;
-    powerOnBoot = true;
+  hardware = {
+    graphics = {
+      enable = true;
+      enable32Bit = true;
+    };
+    bluetooth = {
+      enable = true;
+      powerOnBoot = true;
+    };
   };
 
-  networking.hostName = "nixos_zn";
-  networking.networkmanager.enable = true;
+  boot = {
+    loader = {
+      systemd-boot.enable = true;
+      efi.canTouchEfiVariables = true;
+      timeout = 10;
+    };
+    kernelPackages = pkgs.linuxPackages_latest;
+  };
 
-  # mihomo (Clash Meta) 监听 7890(mixed) / 7891(socks)；
-  # allow-lan 打开后需要放行这两个端口，局域网其他设备才能使用代理
-  networking.firewall.allowedTCPPorts = [ 7890 7891 ];
-  networking.firewall.allowedUDPPorts = [ 7890 7891 ];
+  networking = {
+    hostName = "nixos_zn";
+    networkmanager.enable = true;
+    # mihomo (Clash Meta) 监听 7890(mixed) / 7891(socks)；
+    # allow-lan 打开后需要放行这两个端口，局域网其他设备才能使用代理
+    firewall = {
+      allowedTCPPorts = [
+        7890
+        7891
+      ];
+      allowedUDPPorts = [
+        7890
+        7891
+      ];
+    };
+  };
 
   time.timeZone = "Asia/Shanghai";
-  i18n.defaultLocale = "zh_CN.UTF-8";
-  i18n.supportedLocales = [
-    "en_US.UTF-8/UTF-8"
-    "zh_CN.UTF-8/UTF-8"
-  ];
-  i18n.extraLocaleSettings = {
-    LC_CTYPE = "zh_CN.UTF-8";
-    LC_MESSAGES = "zh_CN.UTF-8";
-  };
-  environment.sessionVariables = {
-    LANG = "zh_CN.UTF-8";
-  };
-  # fcitx5 on Wayland: don't set GTK/QT im-module globally, avoid fcitx5 warning
-  # XWayland apps can set them individually (see https://fcitx-im.org/wiki/Using_Fcitx_5_on_Wayland)
-  environment.variables = {
-    GTK_IM_MODULE = lib.mkForce "";
-    QT_IM_MODULE = lib.mkForce "";
-    SDL_IM_MODULE = lib.mkForce "";
+
+  i18n = {
+    defaultLocale = "zh_CN.UTF-8";
+    supportedLocales = [
+      "en_US.UTF-8/UTF-8"
+      "zh_CN.UTF-8/UTF-8"
+    ];
+    extraLocaleSettings = {
+      LC_CTYPE = "zh_CN.UTF-8";
+      LC_MESSAGES = "zh_CN.UTF-8";
+    };
+
+    inputMethod = {
+      enable = true;
+      type = "fcitx5";
+      fcitx5 = {
+        addons =
+          with pkgs.qt6Packages;
+          [
+            fcitx5-configtool
+          ]
+          ++ [
+            pkgs.fcitx5-rime
+            pkgs.fcitx5-material-color
+          ];
+        # KDE Plasma 6 Wayland: 传统 im-module 方式（不走 KWin InputMethod 机制，更可靠）
+        waylandFrontend = true;
+      };
+    };
   };
 
-  services.xserver.enable = true;
-  services.displayManager.sddm.enable = true;
-  services.desktopManager.plasma6.enable = true;
-  services.blueman.enable = true;
+  environment = {
+    sessionVariables = {
+      LANG = "zh_CN.UTF-8";
+    };
+    # fcitx5 on Wayland: don't set GTK/QT im-module globally, avoid fcitx5 warning
+    # XWayland apps can set them individually (see https://fcitx-im.org/wiki/Using_Fcitx_5_on_Wayland)
+    variables = {
+      GTK_IM_MODULE = lib.mkForce "";
+      QT_IM_MODULE = lib.mkForce "";
+      SDL_IM_MODULE = lib.mkForce "";
+    };
 
-  services.openssh = {
-    enable = true;
-    settings = {
-      PasswordAuthentication = true;
-      PermitRootLogin = "no";
+    systemPackages = with pkgs; [
+      bluez
+      bluez-tools
+      vscode
+      llvm
+      xmake
+      mpv
+      mihomo
+      clang
+      clang-tools
+      lld
+      lldb
+      bubblewrap
+      curl
+      fastfetch
+      flameshot
+      gcc
+      git
+      gnumake
+      google-chrome
+      inetutils
+      net-tools
+      pkgs-unstable.neovim
+      nodejs_24
+      python3
+      python3Packages.pip
+      unzip
+      tmux
+      typst
+      vim
+      wget
+      zsh
+    ];
+  };
+
+  services = {
+    xserver.enable = true;
+    displayManager.sddm.enable = true;
+    desktopManager.plasma6.enable = true;
+    blueman.enable = true;
+
+    openssh = {
+      enable = true;
+      settings = {
+        PasswordAuthentication = true;
+        PermitRootLogin = "no";
+      };
+    };
+
+    pipewire = {
+      enable = true;
+      alsa = {
+        enable = true;
+        support32Bit = true;
+      };
+      pulse.enable = true;
     };
   };
 
   security.rtkit.enable = true;
-  services.pipewire = {
-    enable = true;
-    alsa.enable = true;
-    alsa.support32Bit = true;
-    pulse.enable = true;
-  };
-
-  i18n.inputMethod = {
-    enable = true;
-    type = "fcitx5";
-    fcitx5 = {
-      addons = with pkgs.qt6Packages; [
-        fcitx5-configtool
-      ] ++ [
-        pkgs.fcitx5-rime
-        pkgs.fcitx5-material-color
-      ];
-      # KDE Plasma 6 Wayland: 传统 im-module 方式（不走 KWin InputMethod 机制，更可靠）
-      waylandFrontend = true;
-    };
-  };
 
   fonts.packages = with pkgs; [
     noto-fonts
     noto-fonts-cjk-sans
   ];
 
-  users.users.zn = {
-    isNormalUser = true;
-    description = "zn";
-    extraGroups = [ "wheel" "networkmanager" ];
-    initialPassword = "zning";
-    shell = pkgs.zsh;
+  users.users = {
+    zn = {
+      isNormalUser = true;
+      description = "zn";
+      extraGroups = [
+        "networkmanager"
+        "wheel"
+      ];
+      initialPassword = "zning";
+      shell = pkgs.zsh;
+    };
+    root.initialPassword = "zning";
   };
 
-  users.users.root.initialPassword = "zning";
+  programs = {
+    zsh.enable = true;
+    nix-ld.enable = true;
 
-  programs.zsh.enable = true;
-  programs.nix-ld.enable = true;
+    steam = {
+      enable = true;
+      package = pkgs-unstable.steam;
+    };
 
-  programs.steam = {
-    enable = true;
-    package = pkgs-unstable.steam;
-  };
-
-  programs.firefox = {
-    enable = true;
-    preferences = {
-      "browser.startup.page" = 3;
+    firefox = {
+      enable = true;
+      preferences = {
+        "browser.startup.page" = 3;
+      };
     };
   };
-
-  environment.systemPackages = with pkgs; [
-    bluez
-    bluez-tools
-    vscode
-    llvm
-    xmake
-    mpv
-    mihomo
-    clang
-    clang-tools
-    lld
-    lldb
-    bubblewrap
-    curl
-    fastfetch
-    flameshot
-    gcc
-    git
-    gnumake
-    google-chrome
-    inetutils
-    net-tools
-    pkgs-unstable.neovim
-    nodejs_24
-    python3
-    python3Packages.pip
-    unzip
-    tmux
-    typst
-    vim
-    wget
-    zsh
-  ];
 
   system.stateVersion = "25.11";
 }
