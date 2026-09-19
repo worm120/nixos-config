@@ -107,7 +107,6 @@
     };
 
     systemPackages = with pkgs; [
-      atop
       bluez
       bluez-tools
       btop
@@ -190,6 +189,9 @@
 
   programs = {
     zsh.enable = true;
+
+    # atop 模块：自带 atopacctd（进程统计）+ atop.service/atop-rotate.timer（每日轮转历史日志）
+    atop.enable = true;
     nix-ld.enable = true;
 
     steam = {
