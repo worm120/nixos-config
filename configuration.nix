@@ -107,8 +107,10 @@
     };
 
     systemPackages = with pkgs; [
+      atop
       bluez
       bluez-tools
+      btop
       vscode
       llvm
       xmake
