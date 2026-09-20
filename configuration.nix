@@ -6,10 +6,6 @@
 }:
 
 {
-  imports = [
-    ./hardware-configuration.nix
-  ];
-
   nix.settings = {
     experimental-features = [
       "nix-command"
@@ -46,7 +42,6 @@
   };
 
   networking = {
-    hostName = "nixos_zn";
     networkmanager.enable = true;
     # mihomo (Clash Meta) 监听 7890(mixed) / 7891(socks)；
     # allow-lan 打开后需要放行这两个端口，局域网其他设备才能使用代理
@@ -193,11 +188,6 @@
     # atop 模块：自带 atopacctd（进程统计）+ atop.service/atop-rotate.timer（每日轮转历史日志）
     atop.enable = true;
     nix-ld.enable = true;
-
-    steam = {
-      enable = true;
-      package = pkgs-unstable.steam;
-    };
 
     firefox = {
       enable = true;
