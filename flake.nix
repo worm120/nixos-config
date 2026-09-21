@@ -54,8 +54,18 @@
           inherit specialArgs;
           modules = baseModules ++ modules;
         };
+      # 只用于构建「不属于任何子系统」的独立包（当前：T1 触控栏驱动）。
+      # 用与系统相同的 nixpkgs，保证模块与 boot.kernelPackages 用的内核版本一致。
+      pkgsFor = import nixpkgs {
+        system = "x86_64-linux";
+        config.allowUnfree = true;
+      };
     in
     {
+      packages.x86_64-linux.apple-ib-drv =
+        pkgsFor.linuxPackages_latest.callPackage ./pkgs/apple-ib-drv.nix
+          { };
+
       nixosConfigurations = {
         nixos_zn = mkHost [
           ./hardware-configuration.nix
