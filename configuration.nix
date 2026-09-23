@@ -133,6 +133,7 @@
       nodejs_24
       python3
       python3Packages.pip
+      ripgrep
       unzip
       tmux
       typst
