@@ -79,26 +79,51 @@
 
   users.users.root.initialPassword = "zning";
 
+  programs.firefox = {
+    enable = true;
+    # 启动时自动恢复上次的标签页
+    policies = {
+      Preferences = {
+        "browser.startup.page" = {
+          Value = 3;
+          Status = "default";
+        };
+        "browser.sessionstore.restore_on_demand" = {
+          Value = false;
+          Status = "default";
+        };
+      };
+    };
+  };
+
   programs.zsh.enable = true;
   programs.nix-ld.enable = true;
+
+  # 将系统 bin 目录加入 PATH，确保 coreutils 等标准工具可用
+  environment.sessionVariables = {
+    PATH = "/run/current-system/sw/bin";
+  };
 
   environment.systemPackages = with pkgs; [
     bluez
     bluez-tools
     bubblewrap
+    coreutils
     curl
     gcc
     gnumake
     inetutils
     net-tools
-    firefox
     git
     google-chrome
+    neovim
     nodejs
+    atop
     unzip
     vim
     wget
     zsh
+    typst
   ];
 
   system.stateVersion = "25.11";

@@ -56,6 +56,17 @@ in
       source ${pkgs.zsh-powerlevel10k}/share/zsh/themes/powerlevel10k/powerlevel10k.zsh-theme
       [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
       [[ -f ~/config/zsh/local.zsh ]] && source ~/config/zsh/local.zsh
+
+      # HTTP proxy (Clash/verge/etc.) — 默认不启用,需要时手动:
+      #   export http_proxy=http://127.0.0.1:7890 https_proxy=http://127.0.0.1:7890
+      #   export HTTP_PROXY=http://127.0.0.1:7890 HTTPS_PROXY=http://127.0.0.1:7890
+      #   export no_proxy=localhost,127.0.0.1,::1 NO_PROXY=localhost,127.0.0.1,::1
+
+      # hermes 启动时剥离所有代理环境变量(直连)
+      hermes() {
+        env -u HTTP_PROXY -u HTTPS_PROXY -u http_proxy -u https_proxy \
+            ${config.home.homeDirectory}/.hermes/hermes-agent/venv/bin/hermes "$@"
+      }
     '';
   };
 
@@ -65,6 +76,7 @@ in
     pkgs.home-manager
     pkgs.zsh-powerlevel10k
     pkgs.rustup
+    pkgs.mihomo
   ];
 
   home.sessionVariables = {
@@ -73,6 +85,7 @@ in
 
   home.sessionPath = [
     "${npmPrefix}/bin"
+    "${config.home.homeDirectory}/.local/bin"
     "${config.home.homeDirectory}/.cargo/bin"
     "${config.home.homeDirectory}/LLVM-22.1.0-Linux-X64/bin"
   ];
