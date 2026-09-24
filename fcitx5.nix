@@ -1,6 +1,5 @@
-# fcitx5 用户侧配置：nixos_zn / nixos_mbp 用。
+# fcitx5 用户侧配置（三台主机一致）。
 # fcitx5 由 NixOS 的 fcitx5 systemd user service 自动拉起，不使用 KWin 的 InputMethod 机制。
-# nixos_nuc 用 fcitx5-nuc.nix（KWin InputMethod 方案），按主机 import 见 home.nix。
 { lib, pkgs, ... }:
 
 {

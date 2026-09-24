@@ -1,7 +1,7 @@
+# 三台机器共用的 home 配置（nixos_nuc / nixos_zn / nixos_mbp 完全一致，不按主机分支）。
 {
   config,
   lib,
-  osConfig,
   pkgs,
   ...
 }:
@@ -12,27 +12,10 @@ let
   claudeCodeVersion = "latest";
   openCodeVersion = "latest";
   codexPackageJson = "${npmPrefix}/lib/node_modules/@openai/codex/package.json";
-
-  # 本机 nixos_nuc 的两处差异（其余主机沿用下面 else 分支里的老行为）：
-  #   1. 代理：不设全局 http(s)_proxy，需要时手动 export（见 ~/config/zsh/local.zsh），
-  #      并给 hermes 套一层剥离代理变量的包装。
-  #   2. 输入法：fcitx5 交给 KWin InputMethod 拉起（fcitx5-nuc.nix），
-  #      系统级也不下发 GTK/QT_IM_MODULE=fcitx。
-  isNuc = osConfig.networking.hostName == "nixos_nuc";
-
-  hermesWrapper = ''
-
-    # hermes 启动时剥离所有代理环境变量(直连)
-    hermes() {
-      env -u HTTP_PROXY -u HTTPS_PROXY -u http_proxy -u https_proxy \
-          ${config.home.homeDirectory}/.hermes/hermes-agent/venv/bin/hermes "$@"
-    }
-  '';
 in
 {
   imports = [
-    # nixos_nuc: KWin InputMethod 管 fcitx5；其余主机: 自带 autostart + 全局 im-module
-    (if isNuc then ./fcitx5-nuc.nix else ./fcitx5.nix)
+    ./fcitx5.nix
   ];
 
   home = {
@@ -54,19 +37,16 @@ in
       pkgs.statix # nix lint（LazyVim nix extra -> nvim-lint）
     ];
 
-    sessionVariables =
-      {
-        NPM_CONFIG_PREFIX = npmPrefix;
-      }
-      // lib.optionalAttrs (!isNuc) {
-        GTK_IM_MODULE = "fcitx";
-        QT_IM_MODULE = "fcitx";
-        QT_WAYLAND_IM_MODULE = "fcitx";
-        SDL_IM_MODULE = "fcitx";
-        XMODIFIERS = "@im=fcitx";
-        https_proxy = "http://127.0.0.1:7890";
-        http_proxy = "http://127.0.0.1:7890";
-      };
+    sessionVariables = {
+      NPM_CONFIG_PREFIX = npmPrefix;
+      GTK_IM_MODULE = "fcitx";
+      QT_IM_MODULE = "fcitx";
+      QT_WAYLAND_IM_MODULE = "fcitx";
+      SDL_IM_MODULE = "fcitx";
+      XMODIFIERS = "@im=fcitx";
+      https_proxy = "http://127.0.0.1:7890";
+      http_proxy = "http://127.0.0.1:7890";
+    };
 
     sessionPath = [
       "${npmPrefix}/bin"
@@ -197,13 +177,17 @@ in
       autosuggestion.enable = true;
       syntaxHighlighting.enable = true;
       oh-my-zsh.enable = true;
-      initContent =
-        ''
-          source ${pkgs.zsh-powerlevel10k}/share/zsh/themes/powerlevel10k/powerlevel10k.zsh-theme
-          [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
-          [[ -f ~/config/zsh/local.zsh ]] && source ~/config/zsh/local.zsh
-        ''
-        + lib.optionalString isNuc hermesWrapper;
+      initContent = ''
+        source ${pkgs.zsh-powerlevel10k}/share/zsh/themes/powerlevel10k/powerlevel10k.zsh-theme
+        [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+        [[ -f ~/config/zsh/local.zsh ]] && source ~/config/zsh/local.zsh
+
+        # hermes 启动时剥离所有代理环境变量（直连），不走上面的全局 http(s)_proxy
+        hermes() {
+          env -u HTTP_PROXY -u HTTPS_PROXY -u http_proxy -u https_proxy \
+              ${config.home.homeDirectory}/.hermes/hermes-agent/venv/bin/hermes "$@"
+        }
+      '';
     };
 
     ssh = {

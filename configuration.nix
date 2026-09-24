@@ -87,8 +87,7 @@
             pkgs.fcitx5-material-color
           ];
         # KDE Plasma 6 Wayland：走 im-module 前端（fcitx5 自身的 wayland 前端）。
-        # 各主机谁负责拉起 fcitx5（KWin InputMethod 还是 systemd user service）
-        # 由 home.nix 选用的 fcitx5*.nix 决定。
+        # fcitx5 由 home-manager 的 fcitx5.nix 内的 activation（systemd user service）拉起。
         waylandFrontend = true;
       };
     };
